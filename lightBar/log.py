@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 
 ################################################################################
-# msgLog class
+# msg class
 #
-# Copywright Tesfaye Firew 2018
+# Copyright RHE 2018
 #
-# 18-02-18 - tkf - Module for logging messages
+# 18-04-09 - rhe - written
 #
 ################################################################################
 

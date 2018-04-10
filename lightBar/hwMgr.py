@@ -3,7 +3,7 @@
 ################################################################################
 # chaser class
 #
-# Copyright Wind River 2018
+# Copyright RHE 2018
 #
 # 18-04-06 - rhe - ported from dkofun
 #

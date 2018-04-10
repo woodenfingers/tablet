@@ -3,7 +3,7 @@
 ################################################################################
 # boxConfig class
 #
-# Copyright Wind River 2018
+# Copyright RHE 2018
 # Define the project
 #
 # 18-03-08 - rhe - written 
@@ -61,8 +61,8 @@ class boxConfig(hwMgr, jobList, log, makeSense, tempo, patternDriver):
         self.lMgr = (self.lMgr0, self.lMgr1, self.lMgr2)
 
         myLen = len(self.lMgr)
-        for n in range (0, myLen):
-            print("  self.lMgr " + repr(self.lMgr[n]))
+        #for n in range (0, myLen):
+        #    print("  self.lMgr " + repr(self.lMgr[n]))
         #addLightManagerClassHere
         
 

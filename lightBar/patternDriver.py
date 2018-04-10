@@ -3,10 +3,9 @@
 ################################################################################
 # chaser class
 #
-# Copyright Wind River 2018
+# Copyright RHE 2018
 #
 # 18-03-25 - rhe - written 
-# shutdown & logging
 #
 ################################################################################
 import time
@@ -87,7 +86,7 @@ class patternDriver():
             
         print ("Name     " + repr(style) + "/" + name) 
         print ("  bpm    " + repr(self.tempoMin) + " " + repr(self.tempo) + " " + repr(self.tempoMax)) 
-        print ("  bar    " + repr(dance["bar"]))
+        print ("  bar    " + repr(bar))
         if loopCount > 0:
             print ("  loop   " + repr(loopCount)) 
 
@@ -190,6 +189,7 @@ class patternDriver():
             self.patternNamePrint(dance)
         else:
             return -1
+        self.checkJobPause(thisJob)
 
         self.playPatternBeg(thisJob, dance)
 
@@ -225,7 +225,9 @@ class patternDriver():
         if thisJob == self.jobElement:
             self.patternNamePrint(dance)
         else:
+            print("danceThePattern: return -1")
             return -1
+        self.checkJobPause(thisJob)
             
         try:
             step = dance["step"] 
@@ -244,6 +246,8 @@ class patternDriver():
             self.checkJobPause(thisJob)
 
         self.playPatternEnd(thisJob, dance)
+        
+        print("danceThePattern: return " + repr(loopCount))
         return loopCount
 
 

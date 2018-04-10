@@ -1,12 +1,11 @@
 #!/usr/bin/env python
 
 ################################################################################
-# boxConfig class
+# jobList class
 #
-# Copyright Wind River 2018
-# Define the project
+# Copyright RHE 2018
 #
-# 18-03-08 - rhe - written 
+# 18-03-09 - rhe - written 
 #
 ################################################################################
 
@@ -19,15 +18,13 @@ sys.path.append('../barOak')
 
 
 ################################################################################
-# Class chaserClassconstructor
-# Example: myChase = chaser.chaserClass()
+# Class jobList
 ################################################################################
 class jobList():
     ############################################################################
     # Class constructor
-    # Example: tw = boxConfig()
+    # Example: tw = jobList()
     ############################################################################
-    #def __init__ (self, logFile="./log/boxConfig.log", twDef=1.0):
     def __init__ (self):
 
        
@@ -45,8 +42,6 @@ class jobList():
 
         self.jobSetCount  = -1  # Number of jobs to run Forever  
         self.jobLoopCount = -1  # Number of times to run individual job  
-        self.jobSetCount = 1  # Number of jobs to run Forever  
-        self.jobLoopCount = 1  # Number of times to run individual job  
 
 
         return
@@ -101,7 +96,7 @@ class jobList():
                 
             if self.jobPause == False:
                 self.jobPause = self.jobRest
-            print("jobSet() jobTask[class]" + self.jobTask["class"])
+            self.sense.show_letter(self.jName, self.jNameColor)
         return
 
 
@@ -117,6 +112,7 @@ class jobList():
         self.jobList=jobList
         self.jobElement=0
         self.jobMax = len(self.jobList)
+        print("jobStart: jobElement " + repr(self.jobElement))
         self.jobSet()
         jobLoop = self.jobSetCount
         
@@ -133,20 +129,21 @@ class jobList():
             elif pattern["class"].lower() == "switch":
                 complete = self.patternSwitch(pattern, self.jobLoopCount)
             elif pattern["class"].lower() == "control":
-                self.pushNewJob()
+                complete = 0
             else:
                 print("jobStart: ERROR unknown class " + pattern["class"])
                 time.sleep(1)
                 
             # Complete - 0 indicates that the job's jobLoopCount expired
+            print("jobStart: complete1 " + repr(complete) + " " + repr(self.jobElement))
             if complete == 0:
-                if (self.jobElement + 1) >= self.jobMax:
-                    self.jobElement = 0
+                self.nextJobSet()
+                if (self.jobElement) == 0:
                     if jobLoop > 0:
                         jobLoop -= 1
-                else:
-                    self.jobElement += 1 
+            print("jobStart: complete2 " + repr(complete) + " " + repr(self.jobElement))
                 
+        self.jobSenseHide((0, 0, 0))
         return
 
      
@@ -158,8 +155,9 @@ class jobList():
     ############################################################################
     def pushPrevActionCB(self, event=None):
         self.jobDirection = int(-1)
-        self.pushNewJob()
+        self.nextJobSet()
         #self.sensePrevPattern([0,0,255])  # Print arrow
+        self.jobSet()
         return
     
     
@@ -170,12 +168,13 @@ class jobList():
     ############################################################################
     def pushNextActionCB(self, event=None):
         self.jobDirection = int(1)
-        self.pushNewJob()
+        self.nextJobSet()
         #self.senseNextPattern([255,0,0]) # print arrow
+        self.jobSet()
         return
 
 
-    def pushNewJob(self):
+    def nextJobSet(self):
         myJobElement = self.jobElement + self.jobDirection
         
         if myJobElement < 0:
@@ -184,7 +183,6 @@ class jobList():
             myJobElement = 0
             
         self.jobElement = myJobElement
-        self.jobSet()
         return
     
     
@@ -264,7 +262,7 @@ class jobList():
     # A useless debug function
     ############################################################################
     def jobDebug(self):
-        print ("jobListTest ")
+        print ("jobDebug ")
         print ("  jobElement      " + repr(self.jobElement))
         print ("  jobMax          " + repr(self.jobMax))
         print ("  jobList         " + repr(self.jobList))

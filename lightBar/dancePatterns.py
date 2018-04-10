@@ -3,32 +3,25 @@
 ################################################################################
 # dancePat class
 #
-# Copyright Wind River 2018
+# Copyright RHE 2018
 #
 # 18-03-08 - rhe - written 
 #
 ################################################################################
 
 
-import sys
-sys.path.append('../barOak')
-import time
     
-from boxConfig import boxConfig
 
 ################################################################################
-# Class chaserClassconstructor
-# Example: myChase = chaser.chaserClass()
+# Class dancePat
 ################################################################################
-class dancePat(boxConfig):
+class dancePat():
     ############################################################################
     # Class constructor
-    # Example: tw = timeWarpOak()
+    # Example: val = dancePat()
     ############################################################################
     def __init__ (self):
 
-        boxConfig.__init__(self)
-        print ("self.jobList ", self.jobList)
         
         self.begPat = (0b10101010, 1.75, 0b00000000,  .25)
         self.endPat = (0b00000000, 0)
@@ -415,16 +408,13 @@ if True:
     def dancePatTest():
         myDance = dancePat() 
         myDanceSet = [myDance.foxTrot, myDance.waltz, myDance.vWaltz, myDance.tango]
-        #print ("myDance.dance " + repr(myDance.dance))
-        #print ("dancePatTest ")
-
-        myDance.jobStart(myDanceSet)
-        #while (1):
-        #    time.sleep(10)
-        #    print("FIXME dancePatTest()")
-            
+        print ("myDanceSet  " + repr(myDanceSet))
+        print ("\nmyDanceSet0 " + repr(myDanceSet[0]))
+        print ("\nmyDanceSet1 " + repr(myDanceSet[1]))
+        print ("\nmyDanceSet2 " + repr(myDanceSet[2]))
+          
     
-        print ("Bye")
+        print ("\ndancePatTest: Bye")
         return
 
         
