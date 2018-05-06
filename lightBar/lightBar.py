@@ -11,7 +11,7 @@
 
 import time
 import sys
-sys.path.append('../barOak')
+sys.path.append('/home/pi/git/tablet/core')
 
 from boxConfig import boxConfig
 from dancePatterns import dancePat
@@ -35,7 +35,7 @@ def main():
     val = dancePat()
     pat = patternLib()
 
-    myPatternSet = [pat.controlOne,
+    myPatternSet = [pat.controlForever,
                     pat.pattern00, pat.pattern01, pat.pattern02, pat.pattern03,
                     pat.pattern04, pat.pattern05, pat.pattern06, pat.pattern07,
                     pat.pattern08,

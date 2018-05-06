@@ -5,6 +5,7 @@
 #
 # Copyright RHE 2018
 #
+# 18-05-09 - rhe - probally obsolote with pygame environment
 # 18-03-09 - rhe - written 
 #
 ################################################################################

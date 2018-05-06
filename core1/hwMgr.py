@@ -1,10 +1,11 @@
 #!/usr/bin/env python
 
 ################################################################################
-# chaser class
+# hardware manager class
 #
 # Copyright RHE 2018
 #
+# 18-05-09 - rhe - moved hardware defining code into it's own class 
 # 18-04-06 - rhe - ported from dkofun
 #
 ################################################################################
@@ -15,6 +16,8 @@ from subprocess import call
 from time import sleep
 from collections import deque
 import threading
+
+#from hwMgrDef import hwMgrDef
 
 
 from sense_hat import SenseHat, ACTION_PRESSED, ACTION_HELD, ACTION_RELEASED
@@ -32,20 +35,14 @@ sys.path.append('../barOak/home/pi/rellis/barOak')
 #from msglog import msglogMail
 
     
-
-
 ################################################################################
-# Class chaserClassconstructor
-# Example: myChase = chaser.chaserClass()
+# Class hwMgrDef
 ################################################################################
-#class ioak(log):
-#class ioak(msglog, msglogMail):
-class hwMgr():
+class hwMgrDef():
     ############################################################################
     # Class constructor
-    # Example: myChase = chaser.chaserClass(device)
+    # Example: myChase = hwMgrDef.chaserClass(device)
     #    device:
-    #        debug   - print messages only
     #        relay4  - OUT: Relays 0-3 supported
     #                   IN: 
     #        relay8  - OUT: Relays 0-7 supported
@@ -55,17 +52,17 @@ class hwMgr():
     ############################################################################
     def __init__ (self, hardwareDevice):
 
-        self.debug = False
 
         self.tiggerPin=12
-                             
+        self.shutdownPin=0
+
         self.color = {
             "off":    (  0,   0,   0),
             "red":    (255,   0,   0),
             "green":  (  0, 255,   0),
             "yellow": (255, 255,   0),
             "blue":   (  0,   0, 255)
-            }
+            }       
 
         self.ioMgr = {
         #      GPIO,pin,   mask, TBD 
@@ -87,41 +84,59 @@ class hwMgr():
             15: (21, 40, 0x8000, 16)
             }
 
-        #                vlaid ioBed opEnd  board  debug   pMask    piPrj   invrt     
+        #             ioBed opEnd  pMask   invrt     
         ioBoardCfg = {
-             "debug"   : (True,    0,    8, False,  True,   0xff,  "relay", False),
-             "coup4"   : (True,    0,    4,  True, False,   0x0f,  "coup",  False),
-             "coup8"   : (True,    0,    8,  True, False,   0xff,  "coup",  False),
-             "relay4"  : (True,    0,    4,  True, False,   0x0f,  "relay", False),
-             "relay8"  : (True,    0,    8,  True, False,   0xff,  "relay", False),
-             "relay8i" : (True,    0,    8,  True, False,   0xff,  "relay", True ),
-             "relay16" : (True,    0,   16,  True, False, 0xffff,  "relay", False), 
-             "aHat"    : (False,   0,    3, False, False,    0x3,  "relay", False),
-             ""        : (False,   0,    0, False, False,    0x0,  "relay", False)
+             'relay4'  : (0,    4, 0x0f,   False),
+             'relay8'  : (0,    8, 0xff,   False),
+             'relay8i' : (0,    8, 0xff,   True ),
+             'relay16' : (0,   16, 0xffff, False), 
+             'aHat'    : (0,    3, 0x3,    False),
             }
         try:
             cfg = ioBoardCfg[hardwareDevice]
             self.hwId = hardwareDevice
-            self.ioBeg = cfg[1]    
-            self.ioEnd = cfg[2]    
-            self.board = cfg[3]
-            self.debug = cfg[4]
-            self.oMask = cfg[5]
-            self.piPrj = cfg[6]
-            self.invrt = cfg[7]
+            self.ioBeg = cfg[0]    
+            self.ioEnd = cfg[1]    
+            self.oMask = cfg[2]
+            self.invrt = cfg[3]
         except:
             print("WARNING: Unsupported device " + repr(hardwareDevice) + " - Ignoring HW setup")
             self.hwId = "ERROR"
             self.ioBeg = 0    
             self.ioEnd = 0    
-            self.board = "ERROR"
-            self.debug = True
             self.oMask = 0
-            self.piPrj = "ERROR"
             self.invrt = False
             print ("self.invrt " + self.invrt)
             return
         
+
+        return
+
+
+
+################################################################################
+# Class chaserClassconstructor
+# Example: myChase = chaser.chaserClass()
+################################################################################
+class hwMgr(hwMgrDef):
+    ############################################################################
+    # Class constructor
+    # Example: myChase = chaser.chaserClass(device)
+    #    device:
+    #        debug   - print messages only
+    #        relay4  - OUT: Relays 0-3 supported
+    #                   IN: 
+    #        relay8  - OUT: Relays 0-7 supported
+    #                   IN: 
+    #        Relay16 - OUT: Relays 0-15 supported
+    #                   IN:
+    ############################################################################
+    def __init__ (self, hardwareDevice):
+
+        self.debug = False
+        hwMgrDef.__init__(self, hardwareDevice)
+
+                             
 
         self.gpioInit()
  
@@ -207,13 +222,10 @@ class hwMgr():
         self.debug = mydebug
         if self.debug == True:          
             print("Debug: ioak")
-            print("board               " + repr(self.board))
             print("hwId                " + repr(self.hwId))
             print("io range            " + repr(self.ioBeg)+ "-" + repr(self.ioEnd))
-            print("  board             " + repr(self.board))    
             print("  debug             " + repr(self.debug))    
             print("  oMask             " + repr(self.oMask))    
-            print("  piPrj             " + repr(self.piPrj))    
             print("  invrt             " + repr(self.invrt))    
 
         return self.debug

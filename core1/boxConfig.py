@@ -6,19 +6,19 @@
 # Copyright RHE 2018
 # Define the project
 #
-# 18-03-08 - rhe - written 
+# 18-05-09 - moved parretn functioanllituy into it own separte class
+# 18-03-08 - rhe - written
 #
 ################################################################################
 
 import time
 import sys
-sys.path.append('../barOak')
 
 from hwMgr import hwMgr
 from log import log
 from hwMakeSense import makeSense
 from tempo import tempo
-from patternDriver import patternDriver
+#from patternDriver import patternDriver
 from jobList import jobList
 
     
@@ -28,7 +28,8 @@ from jobList import jobList
 # Class chaserClassconstructor
 # Example: myChase = chaser.chaserClass()
 ################################################################################
-class boxConfig(hwMgr, jobList, log, makeSense, tempo, patternDriver):
+#class boxConfig(hwMgr, jobList, log, makeSense, tempo, patternDriver):
+class boxConfig(hwMgr, jobList, log, makeSense, tempo):
     ############################################################################
     # Class constructor
     # Example: tw = boxConfig()
@@ -42,9 +43,9 @@ class boxConfig(hwMgr, jobList, log, makeSense, tempo, patternDriver):
 
         jobList.__init__(self)
 
-        patternDriver.__init__(self)
+        ###patternDriver.__init__(self) Removed
 
-        tempo.__init__(self)
+        ###tempo.__init__(self)
 
         #makeSense.__init__(self, self.timeWarpAddCB, self.timeWarpSubCB, self.pushPrevActionCB, self.pushNextActionCB, self.boxConfigRefreshCB)
         makeSense.__init__(self, self.tempoIncCB, self.tempoDecCB, self.pushPrevActionCB, self.pushNextActionCB, self.boxConfigRefreshCB)

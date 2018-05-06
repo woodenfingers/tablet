@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Edit /ect/rc_local
+# Edit /etc/rc_local
 # Add the following:
 # /home/pi/ES/autolauncher.sh > /home/pi/ES/logs/rc_local.log &
 
@@ -29,7 +29,7 @@ else
     echo "ERROR Cannot find $startPath/$startProgram"
 fi
 
-startPath=/home/pi/git/tablet/lightBar
+startPath=/home/pi/git/tablet/lightBarXXX
 startProgram="lightBar.py"
 
 found=`ls $startPath/$startProgram`
