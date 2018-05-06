@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 ################################################################################
-# light class
+# Raspberry Pi sence support class
 #
 # Copyright RHE 2018
 #
@@ -158,6 +158,7 @@ class makeSense():
     def pushedDownReqWork(self):
         self.posy = self.clamp(self.posy + 1)
         return
+    
     
     ############################################################################
     # Method: pushedLeftReq() - Joystick was pushed left
