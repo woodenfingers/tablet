@@ -134,12 +134,13 @@ class buttonBasic():
             
 
     ############################################################################
-    # method: punchedBasic() foundational object trigger support
+    # methcatod: punchedBasic() foundational object trigger support
     ############################################################################
     def punchedBasic(self, count=1):
         "this will cause the button to start spinning"
         if not self.spinIt:
-            self.sound.play()
+            if self.sound:
+                self.sound.play()
             self.spinIt = count
             self.original = self.image
 
@@ -317,13 +318,15 @@ class ButtonSkipPlayer(pygame.sprite.Sprite, buttonBasic):
     # method: __init__() constructor
     ############################################################################
     def __init__(self, pos=(100, hight - 100)):
-        buttonBasic.__init__(self, pos, 'w_beep3.ogg')
+        buttonBasic.__init__(self, pos, None)
+        #buttonBasic.__init__(self, pos, 'w_beep3.ogg')
+        #buttonBasic.__init__(self, pos, 'Cat-Scream.wav')
         pygame.sprite.Sprite.__init__(self) #call Sprite intializer
         self.image, self.rect = self.load_image('x_cat.png', 0)
         screen = pygame.display.get_surface()
         self.area = screen.get_rect()
         self.rect.topleft = (100, 200)
-
+        self.catSound = buttonBasic.load_sound(self, 'Cat-Scream.wav')
 
     ############################################################################
     # method: update() - object update function
@@ -336,6 +339,14 @@ class ButtonSkipPlayer(pygame.sprite.Sprite, buttonBasic):
     # method: punched() - object punch or trigger function
     ############################################################################
     def punched(self):
+        self.catSound.play()
+        self.punchedBasic()
+
+
+    ############################################################################
+    # method: punched() - object punch or trigger function
+    ############################################################################
+    def punchedQuiet(self):
         self.punchedBasic()
 
 

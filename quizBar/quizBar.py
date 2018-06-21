@@ -18,7 +18,9 @@
 import os
 import time
 import sys
+
 sys.path.append('/home/pi/git/tablet/core1')
+#sys.path.append('../tablet/core1')
 
 #import pygame
 import pygame
@@ -350,7 +352,8 @@ class ButtonPlayer(pygame.sprite.Sprite, buttonBasic):
         self.font = pygame.font.SysFont(None, 20)
         myTitle=str(self.name)
         self.textSurf = self.font.render(myTitle, 1, (0, 0, 255))
-        self.textScore = self.font.render(repr(self._playerScore), 10, (0, 0, 255))
+        self.font = pygame.font.SysFont(None, 30)
+        self.textScore = self.font.render(repr(self._playerScore), True, (0, 0, 255),(0,0,0))
         screen = pygame.display.get_surface()
         self.area = screen.get_rect()
 
@@ -379,7 +382,7 @@ def main():
     pygame.display.set_caption('QuizBar')
     pygame.mouse.set_visible(1)
 
-#Create The Backgound
+#Create The Background
     background = pygame.Surface(screen.get_size())
     background = background.convert()
     background.fill((255, 255, 255))
@@ -454,11 +457,11 @@ def main():
                     quiz.slowdownStart()
                     quiz.answerIncorrect()
                     bIncorrect.punched()
-                    bSkipPlayer.punched()
+                    bSkipPlayer.punchedQuiet()
                     quiz.answerSkip()
 
                 elif event.unicode == 's'or event.key == 273:
-                    bSkipPlayer.punched()
+                    bSkipPlayer.punchedQuiet()
                     quiz.answerSkip()
 
                 elif event.key == 274:
@@ -533,7 +536,7 @@ def main():
                                 if not inCorrectInPlay:
                                     inCorrectInPlay=True
                                     quiz.answerIncorrect()
-                                    bSkipPlayer.punched()
+                                    bSkipPlayer.punchedQuiet()
                                     quiz.answerSkip()
                                     inCorrectInPlay = False
                                 else:
