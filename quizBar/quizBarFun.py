@@ -42,10 +42,53 @@ class buttonBasic():
         self.home = pos        
         self.posX = 0
         self.posY = 0
-        if not mySound == None:
+        self.sound = None
+        self.bSound0 = None
+        self.bSound1 = None
+        self.bSound2 = None
+        self.bSound3 = None
+        self.bSound4 = None
+        self.bSound5 = None
+        self.bSound6 = None
+        self.bSound7 = None
+        self.bSoundCount = 0
+        self.bSoundList = [self.bSound0, self.bSound1,
+                           self.bSound2, self.bSound3,
+                           self.bSound4, self.bSound5,
+                           self.bSound6, self.bSound7]
+        
+        if mySound:
             self.sound = self.load_sound(mySound)
-        else:
-            self.sound = None
+            self.bSound0 = self.sound
+            self.bSound1 = self.sound
+            self.bSound2 = self.sound
+            self.bSound3 = self.sound
+            self.bSound4 = self.sound
+            self.bSound5 = self.sound
+            self.bSound6 = self.sound
+            self.bSound7 = self.sound
+
+        self.initSoundlist(self.bSound0, self.bSound1,
+                           self.bSound2, self.bSound3,
+                           self.bSound4, self.bSound5,
+                           self.bSound6, self.bSound7)
+    
+    
+    ############################################################################
+    # method: initSoundlist initialize the sound list
+    ############################################################################
+    def initSoundlist(self, s0, s1, s2, s3, s4, s5, s6, s7):
+        self.bSoundList[0] = s0
+        self.bSoundList[1] = s1
+        self.bSoundList[2] = s2
+        self.bSoundList[3] = s3
+        self.bSoundList[4] = s4
+        self.bSoundList[5] = s5
+        self.bSoundList[6] = s6
+        self.bSoundList[7] = s7
+        
+        self.bSoundCount = 0
+
 
     ############################################################################
     # method: _spin() spin object
@@ -139,8 +182,10 @@ class buttonBasic():
     def punchedBasic(self, count=1):
         "this will cause the button to start spinning"
         if not self.spinIt:
-            if self.sound:
-                self.sound.play()
+            sound = self.bSoundList[self.bSoundCount & 0x7]
+            if sound:
+                sound.play()
+            self.bSoundCount += 1
             self.spinIt = count
             self.original = self.image
 
@@ -319,14 +364,19 @@ class ButtonSkipPlayer(pygame.sprite.Sprite, buttonBasic):
     ############################################################################
     def __init__(self, pos=(100, hight - 100)):
         buttonBasic.__init__(self, pos, None)
-        #buttonBasic.__init__(self, pos, 'w_beep3.ogg')
-        #buttonBasic.__init__(self, pos, 'Cat-Scream.wav')
         pygame.sprite.Sprite.__init__(self) #call Sprite intializer
         self.image, self.rect = self.load_image('x_cat.png', 0)
         screen = pygame.display.get_surface()
         self.area = screen.get_rect()
         self.rect.topleft = (100, 200)
-        self.catSound = buttonBasic.load_sound(self, 'Cat-Scream.wav')
+        self.cSound1 = buttonBasic.load_sound(self, 'Cat-Scream.wav')
+        self.cSound2 = buttonBasic.load_sound(self, 'DogGrowlThenBark-SoundBible.com-224495057.wav')
+        self.cSound3 = buttonBasic.load_sound(self, 'MonsterLaugh-SoundBible.com-542163030.wav')
+        self.cSound4 = buttonBasic.load_sound(self, 'TyrannosaurusRex-SoundBible.com-45786848.wav')
+        self.cSound5 = buttonBasic.load_sound(self, 'Evil_Laugh_1-Timothy-64737261.wav')
+        self.catCount = 0
+        self.soundList=(self.cSound2, self.cSound1, self.cSound1, self.cSound5,
+                        self.cSound3, self.cSound1, self.cSound4, self.cSound1)
 
     ############################################################################
     # method: update() - object update function
@@ -339,7 +389,8 @@ class ButtonSkipPlayer(pygame.sprite.Sprite, buttonBasic):
     # method: punched() - object punch or trigger function
     ############################################################################
     def punched(self):
-        self.catSound.play()
+        self.soundList[self.catCount & 0x07].play()
+        self.catCount += 1        
         self.punchedBasic()
 
 
@@ -359,12 +410,18 @@ class ButtonIncorrect(pygame.sprite.Sprite, buttonBasic):
     # method: __init__() constructor
     ############################################################################
     def __init__(self, pos=(100, hight - 100)):
-        buttonBasic.__init__(self, pos, 'w_badswap.wav')
+        buttonBasic.__init__(self, pos, None)
         pygame.sprite.Sprite.__init__(self) #call Sprite intializer
         self.image, self.rect = self.load_image('xa_wrong.png', 0)
         screen = pygame.display.get_surface()
         self.area = screen.get_rect()
         self.rect.topleft = (length, hight / 2)
+        self.bSound1 = buttonBasic.load_sound(self, 'w_badswap.wav')
+        self.bSound2 = buttonBasic.load_sound(self, 'Sad_Trombone-Joe_Lamb-665429450.wav')
+        self.bSound3 = buttonBasic.load_sound(self, 'Smashing-Yuri_Santana-1233262689.wav')
+        self.bSound4 = buttonBasic.load_sound(self, 'StrangeSlip-SoundBible.com-223009506.wav')
+        self.initSoundlist (self.bSound1, self.bSound2, self.bSound3, self.bSound4,
+                            self.bSound2, self.bSound3, self.bSound4, self.bSound1)
 
 
     ############################################################################
@@ -382,7 +439,7 @@ class ButtonIncorrect(pygame.sprite.Sprite, buttonBasic):
 
 
 ################################################################################
-# class: ButtonSkip() - Skip Answer Button
+# class: ButtonLightBarReset() - Skip Answer Button
 ################################################################################
 class ButtonLightBarReset(pygame.sprite.Sprite, buttonBasic):
     """Reset the light bar Button"""
@@ -421,12 +478,20 @@ class ButtonCorrect(pygame.sprite.Sprite, buttonBasic):
     # method: __init__() constructor
     ############################################################################
     def __init__(self, pos=(length - 100, hight - 100)):
-        buttonBasic.__init__(self, pos, 'w_match1.wav')
+        #buttonBasic.__init__(self, pos, 'w_match1.wav')
+        buttonBasic.__init__(self, pos, None)
         pygame.sprite.Sprite.__init__(self) #call Sprite intializer
         self.image, self.rect = self.load_image('xa_correct.png', 0)
         screen = pygame.display.get_surface()
         self.area = screen.get_rect()
         self.rect.topleft = (0,0)
+        self.bSound1 = buttonBasic.load_sound(self, 'Computer_Magic-Microsift-1901299923.wav')
+        self.bSound2 = buttonBasic.load_sound(self, '1_person_cheering-Jett_Rifkin-1851518140.wav')
+        self.bSound3 = buttonBasic.load_sound(self, 'Yes-SoundBible.com-1345875982.wav')
+        self.bSound4 = buttonBasic.load_sound(self, 'KidsCheering-SoundBible.com-681813822.wav')
+        self.bSound5 = buttonBasic.load_sound(self, 'ScreamOfJoy-SoundBible.com-1639390065.wav')
+        self.initSoundlist(self.bSound1, self.bSound2, self.bSound3, self.bSound4,
+                           self.bSound5, self.bSound3, self.bSound4, self.bSound1)
 
 
     ############################################################################

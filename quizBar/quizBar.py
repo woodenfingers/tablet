@@ -19,8 +19,8 @@ import os
 import time
 import sys
 
-sys.path.append('/home/pi/git/tablet/core1')
-#sys.path.append('../tablet/core1')
+# Path to core files
+sys.path.append('../core1')
 
 #import pygame
 import pygame
@@ -72,7 +72,7 @@ screenSize = (length, hight)
 class ButtonReset(pygame.sprite.Sprite, buttonBasic):
     """Reset Button"""
     def __init__(self, pos=(length/2, 20), p1=None, p2=None, p3=None, p4=None, p5=None, p6=None):
-        buttonBasic.__init__(self, pos, 'w_beep2.ogg')
+        buttonBasic.__init__(self, pos, 'BoxingBell.wav')
         pygame.sprite.Sprite.__init__(self) #call Sprite intializer
         self.image, self.rect = self.load_image('x_reset.png', 0)
         screen = pygame.display.get_surface()
@@ -89,7 +89,6 @@ class ButtonReset(pygame.sprite.Sprite, buttonBasic):
         self.updateBasic()
 
     def punched(self):
-        print ("Reset punched")
         if self.player1:
             self.player1.scoreReset()
         if self.player2:
