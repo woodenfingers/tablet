@@ -17,7 +17,8 @@ import sys
 from hwMgr import hwMgr
 from log import log
 from hwMakeSense import makeSense
-from tempo import tempo
+
+#from tempo import tempo
 #from patternDriver import patternDriver
 from jobList import jobList
 
@@ -29,7 +30,8 @@ from jobList import jobList
 # Example: myChase = chaser.chaserClass()
 ################################################################################
 #class boxConfig(hwMgr, jobList, log, makeSense, tempo, patternDriver):
-class boxConfig(hwMgr, jobList, log, makeSense, tempo):
+#class boxConfig(hwMgr, jobList, log, makeSense, tempo):
+class boxConfig(hwMgr, jobList, log, makeSense):
     ############################################################################
     # Class constructor
     # Example: tw = boxConfig()
@@ -48,7 +50,8 @@ class boxConfig(hwMgr, jobList, log, makeSense, tempo):
         ###tempo.__init__(self)
 
         #makeSense.__init__(self, self.timeWarpAddCB, self.timeWarpSubCB, self.pushPrevActionCB, self.pushNextActionCB, self.boxConfigRefreshCB)
-        makeSense.__init__(self, self.tempoIncCB, self.tempoDecCB, self.pushPrevActionCB, self.pushNextActionCB, self.boxConfigRefreshCB)
+        #makeSense.__init__(self, self.tempoIncCB, self.tempoDecCB, self.pushPrevActionCB, self.pushNextActionCB, self.boxConfigRefreshCB)
+        makeSense.__init__(self, None, None, self.pushPrevActionCB, self.pushNextActionCB, self.boxConfigRefreshCB)
 
 
         log.__init__(self, True, self.sense, logFile)
