@@ -384,10 +384,11 @@ def main():
     background = background.convert()
     background.fill((255, 255, 255))
 
+
 #Put Text On The Background, Centered
     if pygame.font:
         font = pygame.font.Font(None, 36)
-        text = font.render("QuizeBar - Elizabeth", 1, (200, 200, 10))
+        text = font.render("QuizBar", 1, (200, 200, 10))
         textpos = text.get_rect(centerx=background.get_width()/2)
         background.blit(text, textpos)
 
@@ -410,16 +411,16 @@ def main():
     bPlayer5    = ButtonPlayer((length -100, 525), 'Yellow', 'boy')
     bPlayer6    = ButtonPlayer((length -100, 625), 'Antique', 'girl')
     bReset      = ButtonReset((length -100, 20), bPlayer1, bPlayer2, bPlayer3, bPlayer4, bPlayer5, bPlayer6)
-    bPat01      = ButtonPat(( 25, 50), 'Pat 1', val.waltz)
-    bPat02      = ButtonPat((100, 50), 'Pat 2', val.vWaltz)
-    bPat03      = ButtonPat((175, 50), 'Pat 3', val.foxTrot)
-    bPat04      = ButtonPat((250, 50), 'Pat 4', val.quickstep)
-    bPat05      = ButtonPat((325, 50), 'Pat 5', val.chaChaCha)
-    bPat06      = ButtonPat((400, 50), 'Pat 6', val.rumbaVal)
-    bPat07      = ButtonPat((475, 50), 'Pat 7', val.rumba)
-    bPat08      = ButtonPat((550, 50), 'Pat 8', pat.chasePattern12)
-    bPat09      = ButtonPat((625, 50), 'Pat 9', pat.chasePattern13)
-    bPat10      = ButtonPat((700, 50), 'Pat 10', pat.chasePattern21) 
+    bPat01      = ButtonPat(( 25, 50), 'waltz', val.waltz)
+    bPat02      = ButtonPat((100, 50), 'vWaltz', val.vWaltz)
+    bPat03      = ButtonPat((175, 50), 'FoxTrot', val.foxTrot)
+    bPat04      = ButtonPat((250, 50), 'Q-step', val.quickstep)
+    bPat05      = ButtonPat((325, 50), 'ChaCha', val.chaChaCha)
+    bPat06      = ButtonPat((400, 50), 'Rumba', val.rumbaVal)
+    bPat07      = ButtonPat((475, 50), 'vRumba', val.rumba)
+    bPat08      = ButtonPat((550, 50), 'Chase1', pat.chasePattern12)
+    bPat09      = ButtonPat((625, 50), 'Chase2', pat.chasePattern13)
+    bPat10      = ButtonPat((700, 50), 'Chase3', pat.chasePattern21) 
     allsprites  = pygame.sprite.Group((myPtr, bCorrect, bIncorrect, bReset, bLbReset, 
                                        bQuestion, bSkipPlayer,
                                        bPlayer1, bPlayer2, bPlayer3,
@@ -477,12 +478,6 @@ def main():
                     
                 elif event.unicode == 'R':
                     bReset.punched()
-                    #bPlayer1.scoreReset()
-                    #bPlayer2.scoreReset()
-                    #bPlayer3.scoreReset()
-                    #bPlayer4.scoreReset()
-                    #bPlayer5.scoreReset()
-                    #bPlayer6.scoreReset()
                     quiz.newQuestion()
 
 
