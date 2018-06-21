@@ -69,18 +69,37 @@ screenSize = (length, hight)
 
 class ButtonReset(pygame.sprite.Sprite, buttonBasic):
     """Reset Button"""
-    def __init__(self, pos=(length/2, 20)):
+    def __init__(self, pos=(length/2, 20), p1=None, p2=None, p3=None, p4=None, p5=None, p6=None):
         buttonBasic.__init__(self, pos, 'w_beep2.ogg')
         pygame.sprite.Sprite.__init__(self) #call Sprite intializer
         self.image, self.rect = self.load_image('x_reset.png', 0)
         screen = pygame.display.get_surface()
         self.area = screen.get_rect()
         self.rect.topleft = (length, 0)
+        self.player1 = p1
+        self.player2 = p2
+        self.player3 = p3
+        self.player4 = p4
+        self.player5 = p5
+        self.player6 = p6
 
     def update(self):
         self.updateBasic()
 
     def punched(self):
+        print ("Reset punched")
+        if self.player1:
+            self.player1.scoreReset()
+        if self.player2:
+            self.player2.scoreReset()
+        if self.player3:
+            self.player3.scoreReset()
+        if self.player4:
+            self.player4.scoreReset()
+        if self.player5:
+            self.player5.scoreReset()
+        if self.player6:
+            self.player6.scoreReset()
         self.punchedBasic()
 
 
@@ -296,6 +315,8 @@ class ButtonPlayer(pygame.sprite.Sprite, buttonBasic):
         self.updateBasic()
 
     def punched(self):
+        self._playerScore += 10
+        self._scroreTextUpdate()
         self.punchedBasic()
         self.scorePrint()
     
@@ -377,28 +398,28 @@ def main():
 #Prepare Game Objects
     clock       = pygame.time.Clock()
     myPtr       = mousePic()
-    bIncorrect  =  ButtonIncorrect((100, hight - 100))
-    bLbReset    =  ButtonLightBarReset((300, hight - 100))
-    bCorrect    =  ButtonCorrect((500, hight - 100))
-    bReset      =  ButtonReset((length -100, 20))
-    bQuestion   =  ButtonQuestion((100, 150))
-    bSkipPlayer =  ButtonSkipPlayer((80, 520))
-    bPlayer1    =  ButtonPlayer((length -100, 125), 'Green', 'boy')
-    bPlayer2    =  ButtonPlayer((length -100, 225), 'Blue', 'girl')
-    bPlayer3    =  ButtonPlayer((length -100, 325), 'White', 'boy')
-    bPlayer4    =  ButtonPlayer((length -100, 425), 'Red', 'girl')
-    bPlayer5    =  ButtonPlayer((length -100, 525), 'Yellow', 'boy')
-    bPlayer6    =  ButtonPlayer((length -100, 625), 'Antique', 'girl')
-    bPat01      =  ButtonPat(( 25, 50), 'Pat 1', val.waltz)
-    bPat02      =  ButtonPat((100, 50), 'Pat 2', val.vWaltz)
-    bPat03      =  ButtonPat((175, 50), 'Pat 3', val.foxTrot)
-    bPat04      =  ButtonPat((250, 50), 'Pat 4', val.quickstep)
-    bPat05      =  ButtonPat((325, 50), 'Pat 5', val.chaChaCha)
-    bPat06      =  ButtonPat((400, 50), 'Pat 6', val.rumbaVal)
-    bPat07      =  ButtonPat((475, 50), 'Pat 7', val.rumba)
-    bPat08      =  ButtonPat((550, 50), 'Pat 8', pat.chasePattern12)
-    bPat09      =  ButtonPat((625, 50), 'Pat 9', pat.chasePattern13)
-    bPat10      =  ButtonPat((700, 50), 'Pat 10', pat.chasePattern21) 
+    bIncorrect  = ButtonIncorrect((100, hight - 100))
+    bLbReset    = ButtonLightBarReset((300, hight - 100))
+    bCorrect    = ButtonCorrect((500, hight - 100))
+    bQuestion   = ButtonQuestion((100, 150))
+    bSkipPlayer = ButtonSkipPlayer((80, 520))
+    bPlayer1    = ButtonPlayer((length -100, 125), 'Green', 'boy')
+    bPlayer2    = ButtonPlayer((length -100, 225), 'Blue', 'girl')
+    bPlayer3    = ButtonPlayer((length -100, 325), 'White', 'boy')
+    bPlayer4    = ButtonPlayer((length -100, 425), 'Red', 'girl')
+    bPlayer5    = ButtonPlayer((length -100, 525), 'Yellow', 'boy')
+    bPlayer6    = ButtonPlayer((length -100, 625), 'Antique', 'girl')
+    bReset      = ButtonReset((length -100, 20), bPlayer1, bPlayer2, bPlayer3, bPlayer4, bPlayer5, bPlayer6)
+    bPat01      = ButtonPat(( 25, 50), 'Pat 1', val.waltz)
+    bPat02      = ButtonPat((100, 50), 'Pat 2', val.vWaltz)
+    bPat03      = ButtonPat((175, 50), 'Pat 3', val.foxTrot)
+    bPat04      = ButtonPat((250, 50), 'Pat 4', val.quickstep)
+    bPat05      = ButtonPat((325, 50), 'Pat 5', val.chaChaCha)
+    bPat06      = ButtonPat((400, 50), 'Pat 6', val.rumbaVal)
+    bPat07      = ButtonPat((475, 50), 'Pat 7', val.rumba)
+    bPat08      = ButtonPat((550, 50), 'Pat 8', pat.chasePattern12)
+    bPat09      = ButtonPat((625, 50), 'Pat 9', pat.chasePattern13)
+    bPat10      = ButtonPat((700, 50), 'Pat 10', pat.chasePattern21) 
     allsprites  = pygame.sprite.Group((myPtr, bCorrect, bIncorrect, bReset, bLbReset, 
                                        bQuestion, bSkipPlayer,
                                        bPlayer1, bPlayer2, bPlayer3,
@@ -454,6 +475,16 @@ def main():
                     bPlayer5.scorePrint()
                     bPlayer6.scorePrint()
                     
+                elif event.unicode == 'R':
+                    bReset.punched()
+                    #bPlayer1.scoreReset()
+                    #bPlayer2.scoreReset()
+                    #bPlayer3.scoreReset()
+                    #bPlayer4.scoreReset()
+                    #bPlayer5.scoreReset()
+                    #bPlayer6.scoreReset()
+                    quiz.newQuestion()
+
 
                 elif event.unicode == '1':
                     quiz.positionPlayer(bPlayer1)
@@ -473,7 +504,12 @@ def main():
                 elif event.unicode == '6':
                     quiz.positionPlayer(bPlayer6)
 
+                # ignore shift, right control left control or alt
+                elif event.key == 304 or event.key == 305 or event.key == 306 or event.key == 308:
+                    continue
+
                 else:
+                    # DEBUG, print event
                     print(str(event.key) + " " + str(event))
             
             elif event.type == MOUSEBUTTONDOWN:

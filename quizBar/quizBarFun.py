@@ -196,7 +196,8 @@ class mousePic(pygame.sprite.Sprite, buttonBasic):
         buttonBasic.__init__(self, (0.0), None)
         self.moveIt = False
         pygame.sprite.Sprite.__init__(self) #call Sprite initializer
-        self.image, self.rect = self.load_image('x_catgirl.png', -1)
+        #self.image, self.rect = self.load_image('x_catgirl.png', -1)
+        self.image, self.rect = self.load_image('x_squirrel.png', -1)
         self.punching = 0
 
 
