@@ -18,7 +18,10 @@
 import os
 import time
 import sys
-sys.path.append('/home/pi/git/tablet/core1')
+head, tail = os.path.split(os.path.dirname(os.path.realpath(__file__)))
+sys.path.insert(0, head)
+
+sys.path.append('../core1')
 
 #import pygame
 import pygame
