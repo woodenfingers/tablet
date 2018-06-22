@@ -112,8 +112,10 @@ class quizMgr:
         self.points=self.pointStart
         self.player=None
         self.oSlot = 0
+        # order array hold the plays who are ready to ask questions
         self.order = [0,0,0,0,0,0,0,0,0,0]
         self.pSlot = 0
+        # pending array hold the plays who are are done, pending a trip home
         self.pending = [0,0,0,0,0,0,0,0,0,0]
         self._initSlots()
         
@@ -191,17 +193,14 @@ class quizMgr:
         
         self.playerList.sort(key=lambda x: x._playerScore, reverse=True)
         for i in range(6):
-            player = self.playerList[i]
+            #player = self.playerList[i]
             self.playerList[i].homeY = self.homeYList[i]
+            # Send player home
+            self.playerList[i].done()
 
         self.points=self.pointStart
         self.player=None
-        for player in self.order:
-            if player != 0:
-                player.done()
-        for player in self.pending:
-            if player != 0:
-                player.done()
+
         self._initSlots()
 
         
@@ -264,6 +263,7 @@ class quizMgr:
         self.pending[self.pSlot] = player
         self.pSlot += 1
         player.select('waiting')
+        # FIXME This can be replaces with a for loop.
         player.move ((50, 150 + int(loc) * 100))
         
         self.order[0] = self.order[1]
