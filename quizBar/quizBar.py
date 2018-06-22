@@ -228,6 +228,15 @@ class quizMgr:
         if player != 0:
             self.shiftLeft()
 
+
+    def answerPenalty(self, penalty=0):
+        self.lbIncorrectStart()
+
+        player = self.order[0]
+        if player != 0:
+            player.scoreSet(penalty)
+            
+
     def lbReset(self):
         self.lbAllOff()
 
@@ -320,14 +329,14 @@ class CourtFrame(pygame.sprite.Sprite, buttonBasic):
 
 class ButtonPlayer(pygame.sprite.Sprite, buttonBasic):
     """Player Button"""
-    def __init__(self, pos=(100,100), name="*", gender='boy'):
+    def __init__(self, pos=(100,100), name="*", type=1):
         self._playerLocaton = 'home'
         self._playerScore = 0
         self.name = name
         buttonBasic.__init__(self, pos, 'w_beep2.ogg')
         pygame.sprite.Sprite.__init__(self) #call Sprite intializer
 
-        if gender== 'boy':
+        if type == 1:
             self.image, self.rect = self.load_image('x_RedSelector.png', 0)
         else:
             self.image, self.rect = self.load_image('x_Selector.png', 0)
@@ -335,7 +344,8 @@ class ButtonPlayer(pygame.sprite.Sprite, buttonBasic):
         self._scroreTextUpdate()
         #self.rect.topleft = (25, 50)
         #print("pos[0] ", str(pos[0]) + " " + str(700 - pos[0]) + " pos[1] ", str(pos[1]) + " " + str(700 - pos[1]))
-        self.rect.topleft = (25 + pos[1], 800 - pos[1])
+        #ORG self.rect.topleft = (25 + pos[1], 800 - pos[1])
+        self.rect.topleft = (pos[1], pos[1])
         
         
         
@@ -379,16 +389,19 @@ class ButtonPlayer(pygame.sprite.Sprite, buttonBasic):
         myTitle=str(self.name)
         self.textSurf = self.font.render(myTitle, 1, (0, 0, 255))
         self.font = pygame.font.SysFont(None, 30)
-        scoreStr = '{:>4}'.format(self._playerScore)
+        scoreStr = '{:>4} '.format(self._playerScore)
         self.textScore = self.font.render(scoreStr, True, (0, 0, 255),(255,255,255))
         screen = pygame.display.get_surface()
         self.area = screen.get_rect()
+        
+        #RW = self.screen.get_width()
+        #RH = self.screen.get_height()
+        #print ('RW' + repr(RW))
+        #print ('RH' + repr(RH))
 
-        W = self.textSurf.get_width()
-        H = self.textSurf.get_height()
-        #self.image.blit(self.textSurf, [100/2 - W/2, 100/2 - H/2])
-        #self.image.blit(self.textSurf, [30/W, H+30])
-        self.image.blit(self.textSurf, [0, 0])
+        TW = self.textSurf.get_width()
+        #TH = self.textSurf.get_height()
+        self.image.blit(self.textSurf, [50/2 - TW/2, 2])
         self.image.blit(self.textScore, [2, 20])
         
 
@@ -434,12 +447,12 @@ def main():
     bCorrect    = ButtonCorrect((500, hight - 100))
     bQuestion   = ButtonQuestion((100, 150))
     bSkipPlayer = ButtonSkipPlayer((105, 620))
-    bPlayer1    = ButtonPlayer((length -100, 125), 'Green', 'boy')
-    bPlayer2    = ButtonPlayer((length -100, 225), 'Blue', 'girl')
-    bPlayer3    = ButtonPlayer((length -100, 325), 'White', 'boy')
-    bPlayer4    = ButtonPlayer((length -100, 425), 'Red', 'girl')
-    bPlayer5    = ButtonPlayer((length -100, 525), 'Yellow', 'boy')
-    bPlayer6    = ButtonPlayer((length -100, 625), 'Antique', 'girl')
+    bPlayer1    = ButtonPlayer((length -100, 125), 'Green',   1)
+    bPlayer2    = ButtonPlayer((length -100, 225), 'Blue',    2)
+    bPlayer3    = ButtonPlayer((length -100, 325), 'White',   1)
+    bPlayer4    = ButtonPlayer((length -100, 425), 'Red',     2)
+    bPlayer5    = ButtonPlayer((length -100, 525), 'Yellow',  1)
+    bPlayer6    = ButtonPlayer((length -100, 625), 'Antique', 2)
     bReset      = ButtonReset((length -100, 20), bPlayer1, bPlayer2, bPlayer3, bPlayer4, bPlayer5, bPlayer6)
     bPat01      = ButtonPat(( 25, 50), 'waltz', val.waltz)
     bPat02      = ButtonPat((100, 50), 'vWaltz', val.vWaltz)
@@ -581,7 +594,8 @@ def main():
                                 bPlayer5.scorePrint()
                                 bPlayer6.scorePrint()
                             elif button == bSkipPlayer:
-                                quiz.answerSkip()
+                                 quiz.answerPenalty(bSkipPlayer.penaltyGet())
+                                 quiz.answerSkip()
                             elif button == bPat01 or button == bPat02 or button == bPat03 or button == bPat04 or button == bPat05 or button == bPat06 or button == bPat07 or button == bPat08 or button == bPat09 or button == bPat10:
                                  #quiz.lightBarThreadSet(button.patternGet())
                                  quiz.lightBarThreadSet(button.threadPattern)

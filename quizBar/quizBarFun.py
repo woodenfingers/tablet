@@ -377,6 +377,7 @@ class ButtonSkipPlayer(pygame.sprite.Sprite, buttonBasic):
         self.catCount = 0
         self.soundList=(self.cSound2, self.cSound1, self.cSound1, self.cSound5,
                         self.cSound3, self.cSound1, self.cSound4, self.cSound1)
+        self.penaltyPoints=(0, -7, 0, 11, 2,- 23, 0, -27)
 
     ############################################################################
     # method: update() - object update function
@@ -399,6 +400,13 @@ class ButtonSkipPlayer(pygame.sprite.Sprite, buttonBasic):
     ############################################################################
     def punchedQuiet(self):
         self.punchedBasic()
+        
+        
+    ############################################################################
+    # method: penaltyGet() - Return Pentalty 
+    ############################################################################
+    def penaltyGet(self):
+        return self.penaltyPoints[self.catCount & 0x07]
 
 
 ################################################################################
