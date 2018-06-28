@@ -241,7 +241,7 @@ class quizMgr:
         if player.locatonGet() == 'home':
             player.select(self.oSlot)
             self.order[self.oSlot] = player
-            player.move ((200 + int(self.oSlot) * 100 ,450))
+            player.move ((175 + int(self.oSlot) * 100 ,475))
             self.oSlot += 1
     
 
@@ -290,7 +290,34 @@ class quizMgr:
     def selectPlayer(self):
         pass
     
-    
+
+class CourtFrame(pygame.sprite.Sprite, buttonBasic):
+    """Players Frame"""
+
+    def __init__(self, surface, image='xb_grass.png', plPlWdth=100, plPlHt=150, numPls=6):
+
+        self.surface = surface
+        self.plPlWidth = plPlWdth
+        self.plPlHeight = plPlHt
+        self.frameSize = (numPls * self.plPlWidth + 50, self.plPlHeight)
+        pygame.sprite.Sprite.__init__(self) #call Sprite intializer
+        print ("FrameSize: " + repr(self.frameSize))
+
+        self.image, self.rect = self.load_image(image, 0)
+        self.image = pygame.transform.scale(self.image, (numPls * self.plPlWidth + 50, self.plPlHeight))
+        self.frame = pygame.Surface((numPls * self.plPlWidth + 50, self.plPlHeight))
+        self.frame.convert()
+
+        self.frame.blit(self.image, (125, 450))
+        pygame.display.flip()
+
+        self.rect.topleft = (125, 450)
+
+    def refresh(self):
+
+        self.surface.blit(self.image, (125, 450))
+
+
 class ButtonPlayer(pygame.sprite.Sprite, buttonBasic):
     """Player Button"""
     def __init__(self, pos=(100,100), name="*", gender='boy'):
@@ -352,7 +379,8 @@ class ButtonPlayer(pygame.sprite.Sprite, buttonBasic):
         myTitle=str(self.name)
         self.textSurf = self.font.render(myTitle, 1, (0, 0, 255))
         self.font = pygame.font.SysFont(None, 30)
-        self.textScore = self.font.render(repr(self._playerScore), True, (0, 0, 255),(0,0,0))
+        scoreStr = '{:>4}'.format(self._playerScore)
+        self.textScore = self.font.render(scoreStr, True, (0, 0, 255),(255,255,255))
         screen = pygame.display.get_surface()
         self.area = screen.get_rect()
 
@@ -361,7 +389,7 @@ class ButtonPlayer(pygame.sprite.Sprite, buttonBasic):
         #self.image.blit(self.textSurf, [100/2 - W/2, 100/2 - H/2])
         #self.image.blit(self.textSurf, [30/W, H+30])
         self.image.blit(self.textSurf, [0, 0])
-        self.image.blit(self.textScore, [0, 20])
+        self.image.blit(self.textScore, [2, 20])
         
 
 
@@ -405,7 +433,7 @@ def main():
     bLbReset    = ButtonLightBarReset((300, hight - 100))
     bCorrect    = ButtonCorrect((500, hight - 100))
     bQuestion   = ButtonQuestion((100, 150))
-    bSkipPlayer = ButtonSkipPlayer((80, 520))
+    bSkipPlayer = ButtonSkipPlayer((105, 620))
     bPlayer1    = ButtonPlayer((length -100, 125), 'Green', 'boy')
     bPlayer2    = ButtonPlayer((length -100, 225), 'Blue', 'girl')
     bPlayer3    = ButtonPlayer((length -100, 325), 'White', 'boy')
@@ -423,6 +451,7 @@ def main():
     bPat08      = ButtonPat((550, 50), 'Chase1', pat.chasePattern12)
     bPat09      = ButtonPat((625, 50), 'Chase2', pat.chasePattern13)
     bPat10      = ButtonPat((700, 50), 'Chase3', pat.chasePattern21) 
+    gameCourt   = CourtFrame(screen)
     allsprites  = pygame.sprite.Group((myPtr, bCorrect, bIncorrect, bReset, bLbReset, 
                                        bQuestion, bSkipPlayer,
                                        bPlayer1, bPlayer2, bPlayer3,
@@ -573,6 +602,7 @@ def main():
 
         #Draw Everything
         screen.blit(background, (0, 0))
+        gameCourt.refresh()
         allsprites.draw(screen)
         pygame.display.flip()
 
