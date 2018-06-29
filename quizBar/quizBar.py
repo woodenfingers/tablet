@@ -63,7 +63,6 @@ screenSize = (length, hight)
 
 
 
-
 #classes for our game objects
 
 
@@ -190,6 +189,11 @@ class quizMgr:
     def newQuestion(self):
         self.lightBarThreadStart()
         
+        self.playerList.sort(key=lambda x: x._playerScore, reverse=True)
+        for i in range(6):
+            player = self.playerList[i]
+            self.playerList[i].homeY = self.homeYList[i]
+
         self.points=self.pointStart
         self.player=None
         for player in self.order:
@@ -409,12 +413,15 @@ class ButtonPlayer(pygame.sprite.Sprite, buttonBasic):
 
 
 def main():
+
     box=boxConfig()    
     
     """this function is called when the program starts.
        it initializes everything it needs, then runs in
        a loop until the function returns."""
     quiz = quizMgr()
+    quiz.homeYList = [125, 225, 325, 425, 525, 625]
+    quiz.playerList = [None, None, None, None, None, None]
     
 #Initialize Everything
     pygame.init()
@@ -447,12 +454,18 @@ def main():
     bCorrect    = ButtonCorrect((500, hight - 100))
     bQuestion   = ButtonQuestion((100, 150))
     bSkipPlayer = ButtonSkipPlayer((105, 620))
-    bPlayer1    = ButtonPlayer((length -100, 125), 'Green',   1)
-    bPlayer2    = ButtonPlayer((length -100, 225), 'Blue',    2)
-    bPlayer3    = ButtonPlayer((length -100, 325), 'White',   1)
-    bPlayer4    = ButtonPlayer((length -100, 425), 'Red',     2)
-    bPlayer5    = ButtonPlayer((length -100, 525), 'Yellow',  1)
-    bPlayer6    = ButtonPlayer((length -100, 625), 'Antique', 2)
+    bPlayer1    = ButtonPlayer((length -100, quiz.homeYList[0]), 'Green',   1)
+    quiz.playerList[0] = bPlayer1
+    bPlayer2    = ButtonPlayer((length -100, quiz.homeYList[1]), 'Blue',    2)
+    quiz.playerList[1] = bPlayer2
+    bPlayer3    = ButtonPlayer((length -100, quiz.homeYList[2]), 'White',   1)
+    quiz.playerList[2] = bPlayer3
+    bPlayer4    = ButtonPlayer((length -100, quiz.homeYList[3]), 'Red',     2)
+    quiz.playerList[3] = bPlayer4
+    bPlayer5    = ButtonPlayer((length -100, quiz.homeYList[4]), 'Yellow',  1)
+    quiz.playerList[4] = bPlayer5
+    bPlayer6    = ButtonPlayer((length -100, quiz.homeYList[5]), 'Antique', 2)
+    quiz.playerList[5] = bPlayer6
     bReset      = ButtonReset((length -100, 20), bPlayer1, bPlayer2, bPlayer3, bPlayer4, bPlayer5, bPlayer6)
     bPat01      = ButtonPat(( 25, 50), 'waltz', val.waltz)
     bPat02      = ButtonPat((100, 50), 'vWaltz', val.vWaltz)

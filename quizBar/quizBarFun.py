@@ -40,6 +40,7 @@ class buttonBasic():
         self.moveIt = True
         self.pos  = pos
         self.home = pos        
+        self.homeY = self.pos[1]
         self.posX = 0
         self.posY = 0
         self.sound = None
@@ -143,7 +144,7 @@ class buttonBasic():
     # method: goHome() move object to home position
     ############################################################################
     def goHome(self):
-        self.pos  = self.home
+        self.pos  = (self.home[0], self.homeY)
         self.moveIt = True
 
 
@@ -239,7 +240,7 @@ class mousePic(pygame.sprite.Sprite, buttonBasic):
     # method: __init__() constructor
     ############################################################################
     def __init__(self):
-        buttonBasic.__init__(self, (0.0), None)
+        buttonBasic.__init__(self, (0,0), None)
         self.moveIt = False
         pygame.sprite.Sprite.__init__(self) #call Sprite initializer
         #self.image, self.rect = self.load_image('x_catgirl.png', -1)
