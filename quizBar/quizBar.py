@@ -231,6 +231,11 @@ class quizMgr:
         if player != 0:
             self.shiftLeft()
 
+        # Reset oSlot if order is empty
+        player = self.order[0]
+        if (player == 0):
+            self.oSlot = 0
+
 
     def answerPenalty(self, penalty=0):
         self.lbIncorrectStart()
@@ -259,7 +264,8 @@ class quizMgr:
 
     def shiftLeft(self):
         player = self.order[0]
-        loc = player.locatonGet()
+        #loc = player.locatonGet()
+        loc = self.pSlot
         self.pending[self.pSlot] = player
         self.pSlot += 1
         player.select('waiting')
@@ -303,6 +309,66 @@ class quizMgr:
     def selectPlayer(self):
         pass
     
+
+class QuizTimer(pygame.sprite.Sprite, buttonBasic):
+    """Quiz Game Timer"""
+
+    def __init__(self, surface, initTimo=15, timo=10, image='xb_sky.png', tPosX=525, tPosY=250, tWdth=128, tHt=80):
+
+        self.surface = surface
+        self.tWidth = tWdth
+        self.tHeight = tHt
+        self.tPosX = tPosX
+        self.tPosY = tPosY
+        self.initTimo = initTimo
+        self.timo = timo
+        self.timerRunning = False
+        self.timerEvent = False
+        self.newQuestion = True
+        pygame.sprite.Sprite.__init__(self) #call Sprite intializer
+
+        self.image, self.rect = self.load_image(image, 0)
+        self.image = pygame.transform.scale(self.image, (tWdth, tHt))
+
+
+    def refreshBackground(self):
+        self.surface.blit(self.image, (self.tPosX, self.tPosY))
+
+
+    def refreshCounter(self):
+        bgColor = (255,255, 255)
+        if (self.counter > 0):
+            textColor = (0, 100, 0)
+            strBuf = '   {0:4d}   '.format(self.counter)
+            self.counter -= 1
+        else:
+            textColor = (255, 0, 0)
+            strBuf = '{:>4}'.format('STOP')
+
+        myFont = pygame.font.SysFont('Consolas', 50)
+        self.textSurf = myFont.render(strBuf, True, textColor, bgColor)
+        textX = ((self.tWidth - self.textSurf.get_width()) / 2)
+        textY = ((self.tHeight - self.textSurf.get_height()) / 2)
+        self.image.blit(self.textSurf, [textX, textY])
+
+
+    def timerStart(self):
+        if (self.newQuestion == True):
+            self.newQuestion = False
+            self.counter = self.initTimo
+        else:
+            self.counter = self.timo
+
+        pygame.time.set_timer(pygame.USEREVENT, 1000)
+        self.timerRunning = True
+
+
+    def timerCancel(self):
+        self.timerRunning = False
+        self.timerEvent = False
+        self.counter = 0
+        pygame.time.set_timer(pygame.USEREVENT, 0)
+
 
 class CourtFrame(pygame.sprite.Sprite, buttonBasic):
     """Players Frame"""
@@ -478,6 +544,7 @@ def main():
     bPat09      = ButtonPat((625, 50), 'Chase2', pat.chasePattern13)
     bPat10      = ButtonPat((700, 50), 'Chase3', pat.chasePattern21) 
     gameCourt   = CourtFrame(screen)
+    timer       = QuizTimer(screen)
     allsprites  = pygame.sprite.Group((myPtr, bCorrect, bIncorrect, bReset, bLbReset, 
                                        bQuestion, bSkipPlayer,
                                        bPlayer1, bPlayer2, bPlayer3,
@@ -494,7 +561,9 @@ def main():
 
         #Handle Input Events
         for event in pygame.event.get():
-            if event.type == QUIT:
+            if event.type == USEREVENT:
+                timer.timerEvent = True
+            elif event.type == QUIT:
                 going = False
             elif event.type == KEYDOWN:
                 if event.key == K_ESCAPE:
@@ -560,6 +629,8 @@ def main():
                 elif event.key == 304 or event.key == 305 or event.key == 306 or event.key == 308:
                     continue
 
+                elif event.unicode == ' ':
+                    timer.timerStart()
                 else:
                     # DEBUG, print event
                     print(str(event.key) + " " + str(event))
@@ -571,6 +642,7 @@ def main():
                         if myPtr.click(button):
                             if button == bQuestion:
                                 quiz.newQuestion()
+                                timer.newQuestion = True
                                 print ("\nScoreboard:")
                                 bPlayer1.scorePrint()
                                 bPlayer2.scorePrint()
@@ -579,6 +651,7 @@ def main():
                                 bPlayer5.scorePrint()
                                 bPlayer6.scorePrint()
                             elif button == bCorrect:
+                                timer.timerCancel()
                                 if not correctInPlay:
                                     correctInPlay = True
                                     quiz.answerCorrect()
@@ -587,6 +660,7 @@ def main():
                                 else:
                                     print("Ignoring: Correct play in progress")
                             elif button == bIncorrect:
+                                timer.timerCancel()
                                 if not inCorrectInPlay:
                                     inCorrectInPlay=True
                                     quiz.answerIncorrect()
@@ -599,6 +673,7 @@ def main():
                                 quiz.lbResaltsReset()
                                 correctInPlay = False
                                 inCorrectInPlay = False
+                                timer.timerCancel()
                                 print ("\nScoreboard:")
                                 bPlayer1.scorePrint()
                                 bPlayer2.scorePrint()
@@ -607,6 +682,7 @@ def main():
                                 bPlayer5.scorePrint()
                                 bPlayer6.scorePrint()
                             elif button == bSkipPlayer:
+                                 timer.timerCancel()
                                  quiz.answerPenalty(bSkipPlayer.penaltyGet())
                                  quiz.answerSkip()
                             elif button == bPat01 or button == bPat02 or button == bPat03 or button == bPat04 or button == bPat05 or button == bPat06 or button == bPat07 or button == bPat08 or button == bPat09 or button == bPat10:
@@ -630,6 +706,11 @@ def main():
         #Draw Everything
         screen.blit(background, (0, 0))
         gameCourt.refresh()
+        if (timer.timerRunning == True):
+            timer.refreshBackground()
+            if (timer.timerEvent == True):
+                timer.refreshCounter()
+                timer.timerEvent = False
         allsprites.draw(screen)
         pygame.display.flip()
 
