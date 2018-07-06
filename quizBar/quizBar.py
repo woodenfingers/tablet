@@ -65,7 +65,19 @@ screenSize = (length, hight)
 
 #classes for our game objects
 
+class ImageDimension(pygame.sprite.Sprite, buttonBasic):
+    """Image Dimension Helper"""
 
+    def __init__(self, image):
+        buttonBasic.__init__(self, (0, 0), None)
+        pygame.sprite.Sprite.__init__(self) #call Sprite intializer
+        self.img, self.rect = self.load_image(image, 0)
+
+    def widthGet(self):
+        return self.rect[2]
+
+    def heightGet(self):
+        return self.rect[3]
 
 
 class ButtonReset(pygame.sprite.Sprite, buttonBasic):
@@ -258,7 +270,9 @@ class quizMgr:
         if player.locatonGet() == 'home':
             player.select(self.oSlot)
             self.order[self.oSlot] = player
-            player.move ((175 + int(self.oSlot) * 100 ,475))
+            X = self.gameCourtX + self.courtMarginX + int(self.oSlot) * 100
+            Y = self.gameCourtY + self.courtMarginY
+            player.move ((X, Y))
             self.oSlot += 1
     
 
@@ -270,7 +284,9 @@ class quizMgr:
         self.pSlot += 1
         player.select('waiting')
         # FIXME This can be replaces with a for loop.
-        player.move ((50, 150 + int(loc) * 100))
+        X = self.waitCourtX + self.courtMarginX
+        Y = self.waitCourtY + self.courtMarginY + int(loc) * 100
+        player.move ((X, Y))
         
         self.order[0] = self.order[1]
         player = self.order[0]
@@ -373,9 +389,15 @@ class QuizTimer(pygame.sprite.Sprite, buttonBasic):
 class CourtFrame(pygame.sprite.Sprite, buttonBasic):
     """Players Frame"""
 
-    def __init__(self, surface, image='xb_grass.png', plPlWdth=100, plPlHt=150, numPls=6):
+    def __init__(self, surface, pos, image='xb_grass.png', landscape=True, plPlWdth=100, plPlHt=150, numPls=6):
 
         self.surface = surface
+
+        self.image, self.rect = self.load_image('x_RedSelector.png', 0)
+        plPlWdth = self.rect[2] + 20
+        plPlHt = self.rect[3] + 20
+        print ("PlayerDimen: " + repr(self.rect))
+
         self.plPlWidth = plPlWdth
         self.plPlHeight = plPlHt
         self.frameSize = (numPls * self.plPlWidth + 50, self.plPlHeight)
@@ -383,18 +405,23 @@ class CourtFrame(pygame.sprite.Sprite, buttonBasic):
         print ("FrameSize: " + repr(self.frameSize))
 
         self.image, self.rect = self.load_image(image, 0)
-        self.image = pygame.transform.scale(self.image, (numPls * self.plPlWidth + 50, self.plPlHeight))
-        self.frame = pygame.Surface((numPls * self.plPlWidth + 50, self.plPlHeight))
+        if (landscape == True):
+            frDimen = (numPls * self.plPlWidth + 50, self.plPlHeight)
+        else:
+            frDimen = (self.plPlWidth, numPls * self.plPlHeight + 50)
+
+        self.image = pygame.transform.scale(self.image, frDimen)
+        self.frame = pygame.Surface(frDimen)
         self.frame.convert()
 
-        self.frame.blit(self.image, (125, 450))
+        self.frame.blit(self.image, pos)
         pygame.display.flip()
 
-        self.rect.topleft = (125, 450)
+        self.rect.topleft = pos
 
     def refresh(self):
 
-        self.surface.blit(self.image, (125, 450))
+        self.surface.blit(self.image, self.rect.topleft)
 
 
 class ButtonPlayer(pygame.sprite.Sprite, buttonBasic):
@@ -486,15 +513,28 @@ def main():
        it initializes everything it needs, then runs in
        a loop until the function returns."""
     quiz = quizMgr()
-    quiz.homeYList = [125, 225, 325, 425, 525, 625]
-    quiz.playerList = [None, None, None, None, None, None]
-    
+    quiz.patY   = 50
+    quiz.courtMarginX = 10
+    quiz.courtMarginY = quiz.courtMarginX
 #Initialize Everything
     pygame.init()
+    sInfo = pygame.display.Info()
+    mSS = (sInfo.current_w, sInfo.current_h)
+    screnSize = mSS
+    print ("SS1: " + repr(mSS) + ", SS2: " + repr(screenSize))
     screen = pygame.display.set_mode((screenSize))
     pygame.display.set_caption('QuizBar')
     pygame.mouse.set_visible(1)
 
+    quiz.patImage = ImageDimension('x_gem4.png')
+    quiz.homeCourtY = quiz.patY + quiz.patImage.heightGet() + 10
+
+    quiz.homeYList = [125, 225, 325, 425, 525, 625]
+    for i in range(6):
+        quiz.homeYList[i] = quiz.homeCourtY + quiz.courtMarginY + i * 100
+
+    quiz.playerList = [None, None, None, None, None, None]
+    
 #Create The Background
     background = pygame.Surface(screen.get_size())
     background = background.convert()
@@ -533,17 +573,24 @@ def main():
     bPlayer6    = ButtonPlayer((length -100, quiz.homeYList[5]), 'Antique', 2)
     quiz.playerList[5] = bPlayer6
     bReset      = ButtonReset((length -100, 20), bPlayer1, bPlayer2, bPlayer3, bPlayer4, bPlayer5, bPlayer6)
-    bPat01      = ButtonPat(( 25, 50), 'waltz', val.waltz)
-    bPat02      = ButtonPat((100, 50), 'vWaltz', val.vWaltz)
-    bPat03      = ButtonPat((175, 50), 'FoxTrot', val.foxTrot)
-    bPat04      = ButtonPat((250, 50), 'Q-step', val.quickstep)
-    bPat05      = ButtonPat((325, 50), 'ChaCha', val.chaChaCha)
-    bPat06      = ButtonPat((400, 50), 'Rumba', val.rumbaVal)
-    bPat07      = ButtonPat((475, 50), 'vRumba', val.rumba)
-    bPat08      = ButtonPat((550, 50), 'Chase1', pat.chasePattern12)
-    bPat09      = ButtonPat((625, 50), 'Chase2', pat.chasePattern13)
-    bPat10      = ButtonPat((700, 50), 'Chase3', pat.chasePattern21) 
-    gameCourt   = CourtFrame(screen)
+    bPat01      = ButtonPat(( 25, quiz.patY), 'waltz', val.waltz)
+    bPat02      = ButtonPat((100, quiz.patY), 'vWaltz', val.vWaltz)
+    bPat03      = ButtonPat((175, quiz.patY), 'FoxTrot', val.foxTrot)
+    bPat04      = ButtonPat((250, quiz.patY), 'Q-step', val.quickstep)
+    bPat05      = ButtonPat((325, quiz.patY), 'ChaCha', val.chaChaCha)
+    bPat06      = ButtonPat((400, quiz.patY), 'Rumba', val.rumbaVal)
+    bPat07      = ButtonPat((475, quiz.patY), 'vRumba', val.rumba)
+    bPat08      = ButtonPat((550, quiz.patY), 'Chase1', pat.chasePattern12)
+    bPat09      = ButtonPat((625, quiz.patY), 'Chase2', pat.chasePattern13)
+    bPat10      = ButtonPat((700, quiz.patY), 'Chase3', pat.chasePattern21) 
+    quiz.gameCourtX  = 125
+    quiz.gameCourtY  = 450
+    gameCourt   = CourtFrame(screen, (quiz.gameCourtX, quiz.gameCourtY))
+    quiz.homeCourtX = length - 115
+    homeCourt   = CourtFrame(screen, (quiz.homeCourtX, quiz.homeCourtY), 'floor1.png', False)
+    quiz.waitCourtX = 10
+    quiz.waitCourtY = quiz.homeCourtY
+    waitCourt   = CourtFrame(screen, (quiz.waitCourtX, quiz.waitCourtY), 'floor2.png', False)
     timer       = QuizTimer(screen)
     allsprites  = pygame.sprite.Group((myPtr, bCorrect, bIncorrect, bReset, bLbReset, 
                                        bQuestion, bSkipPlayer,
@@ -706,6 +753,8 @@ def main():
         #Draw Everything
         screen.blit(background, (0, 0))
         gameCourt.refresh()
+        homeCourt.refresh()
+        waitCourt.refresh()
         if (timer.timerRunning == True):
             timer.refreshBackground()
             if (timer.timerEvent == True):
