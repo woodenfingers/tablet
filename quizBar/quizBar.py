@@ -270,7 +270,9 @@ class quizMgr:
         if player.locatonGet() == 'home':
             player.select(self.oSlot)
             self.order[self.oSlot] = player
-            X = self.gameCourtX + self.courtMarginX + int(self.oSlot) * 100
+            X = self.gameCourtX + self.courtMarginX + int(self.oSlot) * self.playerImage.widthGet()
+            if (int(self.oSlot) > 0):
+                X += int(self.oSlot) * self.interPlayerSpace
             Y = self.gameCourtY + self.courtMarginY
             player.move ((X, Y))
             self.oSlot += 1
@@ -285,38 +287,41 @@ class quizMgr:
         player.select('waiting')
         # FIXME This can be replaces with a for loop.
         X = self.waitCourtX + self.courtMarginX
-        Y = self.waitCourtY + self.courtMarginY + int(loc) * 100
+        Y = self.waitCourtY + self.courtMarginY + int(loc) * self.playerImage.heightGet()
+        if (int(loc) > 0):
+            Y += int(loc) * self.interPlayerSpace
         player.move ((X, Y))
-        
+       
+        shiftBy = -1 * (self.playerImage.widthGet() + self.interPlayerSpace) 
         self.order[0] = self.order[1]
         player = self.order[0]
         if player != 0:
-            player.moveRel (-100, 0)
+            player.moveRel (shiftBy, 0)
         
         self.order[1] = self.order[2]
         player = self.order[1]
         if player != 0:
-            player.moveRel (-100, 0)
+            player.moveRel (shiftBy, 0)
         
         self.order[2] = self.order[3]
         player = self.order[2]
         if player != 0:
-            player.moveRel (-100, 0)
+            player.moveRel (shiftBy, 0)
          
         self.order[3] = self.order[4]
         player = self.order[3]
         if player != 0:
-            player.moveRel (-100, 0)
+            player.moveRel (shiftBy, 0)
         
         self.order[4] = self.order[5]
         player = self.order[4]
         if player != 0:
-            player.moveRel (-100, 0)
+            player.moveRel (shiftBy, 0)
         
         self.order[5] = self.order[6]
         player = self.order[5]
         if player != 0:
-            player.moveRel (-100, 0)
+            player.moveRel (shiftBy, 0)
         
         self.order[6] = 0
 
@@ -389,26 +394,26 @@ class QuizTimer(pygame.sprite.Sprite, buttonBasic):
 class CourtFrame(pygame.sprite.Sprite, buttonBasic):
     """Players Frame"""
 
-    def __init__(self, surface, pos, image='xb_grass.png', landscape=True, plPlWdth=100, plPlHt=150, numPls=6):
+    def __init__(self, surface, quiz, pos, image='xb_grass.png', landscape=True):
 
         self.surface = surface
 
-        self.image, self.rect = self.load_image('x_RedSelector.png', 0)
-        plPlWdth = self.rect[2] + 20
-        plPlHt = self.rect[3] + 20
-        print ("PlayerDimen: " + repr(self.rect))
+        plWidth = quiz.playerImage.widthGet()
+        plHeight = quiz.playerImage.heightGet()
+        pls = quiz.numPlayers
+        space = quiz.interPlayerSpace
 
-        self.plPlWidth = plPlWdth
-        self.plPlHeight = plPlHt
-        self.frameSize = (numPls * self.plPlWidth + 50, self.plPlHeight)
         pygame.sprite.Sprite.__init__(self) #call Sprite intializer
-        print ("FrameSize: " + repr(self.frameSize))
 
         self.image, self.rect = self.load_image(image, 0)
         if (landscape == True):
-            frDimen = (numPls * self.plPlWidth + 50, self.plPlHeight)
+            dimX = 2 * quiz.courtMarginX + (pls * plWidth) + (pls - 1) * space
+            dimY = 2 * quiz.courtMarginY + plHeight
         else:
-            frDimen = (self.plPlWidth, numPls * self.plPlHeight + 50)
+            dimX = 2 * quiz.courtMarginX + plWidth
+            dimY = 2 * quiz.courtMarginY + (pls * plHeight) + (pls - 1) * space
+
+        frDimen = (dimX, dimY)
 
         self.image = pygame.transform.scale(self.image, frDimen)
         self.frame = pygame.Surface(frDimen)
@@ -518,10 +523,6 @@ def main():
     quiz.courtMarginY = quiz.courtMarginX
 #Initialize Everything
     pygame.init()
-    sInfo = pygame.display.Info()
-    mSS = (sInfo.current_w, sInfo.current_h)
-    screnSize = mSS
-    print ("SS1: " + repr(mSS) + ", SS2: " + repr(screenSize))
     screen = pygame.display.set_mode((screenSize))
     pygame.display.set_caption('QuizBar')
     pygame.mouse.set_visible(1)
@@ -529,9 +530,15 @@ def main():
     quiz.patImage = ImageDimension('x_gem4.png')
     quiz.homeCourtY = quiz.patY + quiz.patImage.heightGet() + 10
 
+    quiz.playerImage = ImageDimension('x_RedSelector.png')
+    quiz.numPlayers = 6
+    quiz.interPlayerSpace = 25
+
     quiz.homeYList = [125, 225, 325, 425, 525, 625]
-    for i in range(6):
-        quiz.homeYList[i] = quiz.homeCourtY + quiz.courtMarginY + i * 100
+    for i in range(quiz.numPlayers):
+        quiz.homeYList[i] = quiz.homeCourtY + quiz.courtMarginY + i * quiz.playerImage.heightGet()
+        if (i > 0):
+            quiz.homeYList[i] += i * quiz.interPlayerSpace
 
     quiz.playerList = [None, None, None, None, None, None]
     
@@ -585,12 +592,12 @@ def main():
     bPat10      = ButtonPat((700, quiz.patY), 'Chase3', pat.chasePattern21) 
     quiz.gameCourtX  = 125
     quiz.gameCourtY  = 450
-    gameCourt   = CourtFrame(screen, (quiz.gameCourtX, quiz.gameCourtY))
+    gameCourt   = CourtFrame(screen, quiz, (quiz.gameCourtX, quiz.gameCourtY), 'xb_grass.png', True)
     quiz.homeCourtX = length - 115
-    homeCourt   = CourtFrame(screen, (quiz.homeCourtX, quiz.homeCourtY), 'floor1.png', False)
+    homeCourt   = CourtFrame(screen, quiz, (quiz.homeCourtX, quiz.homeCourtY), 'floor1.png', False)
     quiz.waitCourtX = 10
     quiz.waitCourtY = quiz.homeCourtY
-    waitCourt   = CourtFrame(screen, (quiz.waitCourtX, quiz.waitCourtY), 'floor2.png', False)
+    waitCourt   = CourtFrame(screen, quiz, (quiz.waitCourtX, quiz.waitCourtY), 'floor2.png', False)
     timer       = QuizTimer(screen)
     allsprites  = pygame.sprite.Group((myPtr, bCorrect, bIncorrect, bReset, bLbReset, 
                                        bQuestion, bSkipPlayer,
