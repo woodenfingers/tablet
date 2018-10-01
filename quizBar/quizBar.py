@@ -580,8 +580,8 @@ def main():
     bPlayer6    = ButtonPlayer((length -100, quiz.homeYList[5]), 'Antique', 2)
     quiz.playerList[5] = bPlayer6
     bReset      = ButtonReset((length -100, 20), bPlayer1, bPlayer2, bPlayer3, bPlayer4, bPlayer5, bPlayer6)
-    bPat01      = ButtonPat(( 25, quiz.patY), 'waltz', val.waltz)
-    bPat02      = ButtonPat((100, quiz.patY), 'vWaltz', val.vWaltz)
+    bPat01      = ButtonPat(( 25, quiz.patY), 'Brain', pat.programBrain)
+    bPat02      = ButtonPat((100, quiz.patY), 'Sky', pat.sky)
     bPat03      = ButtonPat((175, quiz.patY), 'FoxTrot', val.foxTrot)
     bPat04      = ButtonPat((250, quiz.patY), 'Q-step', val.quickstep)
     bPat05      = ButtonPat((325, quiz.patY), 'ChaCha', val.chaChaCha)
