@@ -1,2 +1,0 @@
-4 D root       455   448  0  80   0 -  1795 io_sch 23:28 ?        00:00:00 /usr/bin/python3 /home/pi/git/tablet/tShutdown/shutdownMan.py
-4 S root       457   448  0  80   0 -  1093 pipe_w 23:28 ?        00:00:00 grep shutdownMan.py
