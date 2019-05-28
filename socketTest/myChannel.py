@@ -19,6 +19,9 @@
 import socket
 import time
 import pickle
+import threading
+
+from qExeObj import qExeObj
 
 
 class myChannel():
@@ -36,20 +39,69 @@ class myChannel():
             print ('Not '+str(self.myServerHost))
             self.serverOK = False
             
-        # fixed formatting header
-        self.msgSize = 4
-        self.cmdSize = 1
-        self.hdrSize = self.msgSize + self.cmdSize
-        msg = self.msgCreate('P','Hello World')
-        print (msg)
-        print (self.msgCmd(msg))
-        print (self.msgLen(msg))
-        print (self.msgMsg(msg))
+        self.myQApp      = None
+        
+        self.clientQThd  = []
+        self.clientConn  = []
+        self.clientAddr  = []
+        self.clientCount = 1
+
+        self.serverQThd  = []
+        self.serverConn  = []
+        self.serverAddr  = []
+
+    def quizThread(self):
+        print('!!! quizThread() starting')
+        time.sleep(7)
+        while True:
+            t = 0
+            for q in self.clientQThd:
+                time.sleep(1)
+                q.ping()
+                t += 1
+            time.sleep(max(10-t, 1))
+            
 
     
     
+    ############################################################################
+    # method closeClientConnections() - close all client connections 
+    # Close all client connections known by the server connections
+    # Call during start of server just incase its a restart
+    ############################################################################
+    def closeClientConnections(self):
+        # kill and delete thread classes
+        print('!!! Server is closing all client connections')
+        for q in self.clientQThd:
+            q.kill()
+            del q
+        self.clientQThd.clear()
+
+        for c in self.clientConn:
+            c.close()
+        self.clientConn.clear()
+        self.clientAddr.clear()
+        self.clientCount = 1
 
 
+
+    ############################################################################
+    # method closeServerConnections() - close all server connections 
+    # Close all client connections known by the server connections
+    # Call during start of client just incase its a restart
+    ############################################################################
+    def closeServerConnections(self):
+        # kill and delete thread classes
+        print('!!! Client is closing all server connections')
+        for q in self.serverQThd:
+            q.kill()
+            del q
+        self.serverQThd.clear()
+
+        for c in self.serverConn:
+            c.close()
+        self.serverConn.clear()
+        self.serverAddr.clear()
 
 
 
@@ -60,6 +112,10 @@ class myChannel():
             exit(1)
         print('!!! serverDeamon02: Starting server on '+str(self.myIP)+' Port '+str(self.port))
 
+        self.closeClientConnections()
+
+        
+
         # create the socket
         # AF_INET == ipv4
         # SOCK_STREAM == TCP
@@ -68,22 +124,28 @@ class myChannel():
         s.bind((self.myIP, self.port))
 
         s.listen(10)
-
-
+        first = True
         while True:
             # now our endpoint knows about the OTHER endpoint.
             clientsocket, address = s.accept()
+            s.setblocking(1)     # prevent client timeout from happening
             print('Connection from '+str(address)+' has been established!')
-
-            self.msgSend(clientsocket, 'M','rPiQuiz')
-            
-            while True:
-                time.sleep(7)
-                print('Ping client')
-                self.msgSend(clientsocket, 'P', str(time.time()))
+            if first is True:
+                self.myQApp = threading.Thread(target=self.quizThread)
+                self.myQApp.start()
+                first = False
                 
-            # clientsocket.close()
-            return
+            q = qExeObj(self.clientCount, clientsocket, address)
+            self.clientCount += 1
+            self.clientQThd.append(q)
+            
+            self.clientConn.append(clientsocket)
+            self.clientAddr.append(address)
+            q.start()
+            #thread.start_new_thread(onNewClient,(clientsocket,address))
+            
+        s.close()
+        return
 
 
 
@@ -93,17 +155,20 @@ class myChannel():
     ############################################################################
     def client02(self):
         print('!!! Starting client02 on '+str(self.myIP)+' Port '+str(self.port))
+        self.closeServerConnections()
+        
         # create the socket
         # AF_INET == ipv4
         # SOCK_STREAM == TCP
-        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        s.connect((self.myIP, self.port))
+        server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        server.connect((self.myIP, self.port))
 
-        while True:
-            myMsg = self.msgReceive(s)
-            print (str(myMsg))
-        return
+        q = qExeObj(0, server, self.myIP)
+        self.serverQThd.append(q)
+        self.clientConn.append(server)
+        self.clientAddr.append(self.myIP)
 
+        q.start()
 
 
 
@@ -114,88 +179,6 @@ class myChannel():
 
 
     
-    ############################################################################
-    # method msgCreate() - Send and recieve and close seeion each time
-    # Messages
-    # <len>p<msg>      - ping - seng ping with message
-    # <len>r<msg>      - ping - return message uses recieved client
-    # <len>B<1-n>      - Button Pressed
-    # <len>L<1-8>      - Light On
-    # <len>l<1-8>      - Light Off
-    # <len>P<11111111> - light pattern
-    # <len>A<msg>      - ACK command
-    # <len>N<msg>      - NAK command
-    # <len>M<msg>      - Just a message
-    ############################################################################
-    def msgCreate(self, cmd, msg):
-        hdrFmt='{:<'+str(self.msgSize)+'}'
-        cmdFmt='{:<'+str(self.cmdSize)+'}'
-        fmtMsg=hdrFmt.format(str(len(msg)))+cmdFmt.format(str(cmd))+str(msg)
-        return fmtMsg
-
-    ############################################################################
-    # method msgCmd() - return a message command
-    ############################################################################
-    def msgCmd(self, msg):
-        return msg[self.msgSize:self.hdrSize]
-    
-    ############################################################################
-    # method msgLen() - return a message length
-    ############################################################################
-    def msgLen(self, msg):
-        return int(msg[0:self.msgSize])
-
-    ############################################################################
-    # method msgLen() - return a message content
-    ############################################################################
-    def msgMsg(self, msg):
-        return msg[self.hdrSize]
-
-
-
-    ############################################################################
-    # method msgReceive() - receive a variable length message from socket
-    # Message contains an embedded command
-    ############################################################################
-    def msgReceive(self, soc):
-        fullMsg = ''
-        newMsg  = True
-        msglen  = self.hdrSize # first pass grab the whole header
-        while True:
-            msg = soc.recv(msglen)
-            fullMsg += msg.decode("utf-8")
-            if newMsg is True:
-                # Get message header
-                if len(msg) > self.hdrSize:
-                    # We did not get the whole header
-                    msglen -= len(msg)
-                else:
-                    # Full header was recieved. Now,get the rest of the message
-                    msglen = self.msgLen(fullMsg)
-                    newMsg = False
-            else:
-                # Get message content
-                msglen = max(msglen-len(msg), 0)
-
-   
-            if msglen == 0:
-                # Full message was received.
-                return fullMsg
-
-
-
-    ############################################################################
-    # method msgSend() - format command / message and send to a socket
-    ############################################################################
-    def msgSend(self, soc, cmd, msg):
-        sMsg = self.msgCreate(str(cmd),msg)
-        return soc.send(bytes(sMsg, "utf-8"))
-
-
-
-
-
-
 
 
 
