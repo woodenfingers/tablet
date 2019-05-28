@@ -105,14 +105,13 @@ class qExeObj():
         self.conn.close()
 
     def parseMsg(self, msg):
-        print('parseMsg '+self.clientIndex+' '+msg)
         myCmd  = self.msgCmd(msg)
         myData = self.msgMsg(msg)
-        print('parseMsg '+self.clientIndex+' '+myCmd+' '+myData)
+        # print('parseMsg '+self.clientIndex+' '+myCmd+' '+myData)
         
         if myCmd == 'M':
             self.serverGreeting = myData
-        else myCmd == 'P':
+        elif myCmd == 'P':
             self.msgSend(self.conn, 'R', myData)
         elif myCmd == 'R':
             self.pingRx += 1
